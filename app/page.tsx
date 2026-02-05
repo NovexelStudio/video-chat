@@ -127,8 +127,8 @@ export default function Omegle2010Light() {
 
   const startWebRTC = async (roomId: string, role: "offerer" | "answerer") => {
     currentRoomId.current = roomId;
-    pcRef.current = new RTCPeerConnection(iceServers);
-    const pc = pcRef.current;
+    const pc = new RTCPeerConnection(iceServers);
+    pcRef.current = pc;
 
     // 1. Get Local Media
     try {
@@ -145,7 +145,7 @@ export default function Omegle2010Light() {
       return;
     }
 
-    // 2. Handle Remote Video (The Stranger)
+    // 2. Handle Remote Video (Crucial fix: Manually call .play())
     pc.ontrack = (ev) => {
       if (remoteVideoRef.current && ev.streams[0]) {
         remoteVideoRef.current.srcObject = ev.streams[0];
@@ -154,7 +154,7 @@ export default function Omegle2010Light() {
       }
     };
 
-    // 3. ICE Candidate Signaling (Split paths to fix blank video)
+    // 3. ICE Candidate Signaling (Split paths)
     pc.onicecandidate = (ev) => {
       if (ev.candidate) {
         push(ref(db, `rooms/${roomId}/candidates/${role}`), ev.candidate.toJSON());
@@ -164,8 +164,10 @@ export default function Omegle2010Light() {
     const otherRole = role === "offerer" ? "answerer" : "offerer";
     addListener(
       onChildAdded(ref(db, `rooms/${roomId}/candidates/${otherRole}`), (snap) => {
+        const cand = snap.val();
+        // WebRTC will ignore candidates if RemoteDescription isn't set yet
         if (pc.remoteDescription) {
-          pc.addIceCandidate(new RTCIceCandidate(snap.val())).catch(() => {});
+          pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
         }
       })
     );
@@ -179,7 +181,7 @@ export default function Omegle2010Light() {
       if (snap.val() === false) setStatus("Stranger has disconnected");
     }));
 
-    // 5. Handshake Logic
+    // 5. Handshake Logic (Fixed Race Condition)
     const roomRef = ref(db, `rooms/${roomId}`);
 
     if (role === "offerer") {
@@ -187,19 +189,33 @@ export default function Omegle2010Light() {
       await pc.setLocalDescription(offer);
       await update(roomRef, { offer: { type: offer.type, sdp: offer.sdp }, active: true });
 
+      // Wait for Answer
       addListener(onValue(ref(db, `rooms/${roomId}/answer`), async (snap) => {
-        if (snap.exists() && !pc.remoteDescription) {
-          await pc.setRemoteDescription(new RTCSessionDescription(snap.val()));
+        const answer = snap.val();
+        if (answer && !pc.remoteDescription) {
+          await pc.setRemoteDescription(new RTCSessionDescription(answer));
         }
       }));
     } else {
-      const snap = await get(roomRef);
-      const data = snap.val();
+      // Answerer: Get the Offer from DB
+      const roomSnap = await get(roomRef);
+      const data = roomSnap.val();
       if (data?.offer) {
         await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         await update(roomRef, { answer: { type: answer.type, sdp: answer.sdp }, active: true });
+      } else {
+        // Offer might not be in the initial 'get', listen for it
+        addListener(onValue(ref(db, `rooms/${roomId}/offer`), async (snap) => {
+            const offer = snap.val();
+            if (offer && !pc.remoteDescription) {
+                await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                await update(roomRef, { answer: { type: answer.type, sdp: answer.sdp }, active: true });
+            }
+        }));
       }
     }
   };
@@ -224,10 +240,7 @@ export default function Omegle2010Light() {
     setInput("");
   };
 
-  // ────────────────────────────────────────────────
-  // UI Render
-  // ────────────────────────────────────────────────
-
+  // UI Code starts here (Unaltered 2010 Style)
   if (mode === "home") {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 text-center">
@@ -252,7 +265,6 @@ export default function Omegle2010Light() {
       </header>
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Left: Videos */}
         <div className="flex-1 flex flex-col bg-white p-4 gap-4 max-w-full md:max-w-[45%]">
           <div className="relative flex-1 bg-black border-4 border-gray-400 rounded overflow-hidden shadow-inner">
             <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
@@ -271,7 +283,6 @@ export default function Omegle2010Light() {
           </div>
         </div>
 
-        {/* Right: Chat */}
         <div className="w-full md:w-96 bg-white flex flex-col border-t md:border-t-0 md:border-l border-gray-300">
           <div className="p-4 border-b border-gray-300 text-gray-500 text-xs font-bold uppercase tracking-wider">{status}</div>
           <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 text-sm">
