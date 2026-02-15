@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://iili.io/qJ8GGYg.png?font=Fira+Code&size=34&duration=3000&pause=1000&color=FFFFFF&center=true&vCenter=true&width=800&lines=✧+OMEGLE_RTC+✧;Random+Video+Chat;WebRTC+•+Firebase+•+Next.js" alt="Project Banner" />
+<img src="https://iili.io/qJUFw11.png" width="10%" style="border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 
 <br/>
 
@@ -54,7 +54,7 @@
 ## 📸 Interface Preview
 
 <div align="center">
-  <img src="https://iili.io/qJ8wNOF.png" width="95%" style="border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <img src="https://iili.io/qJUfuPS.png" width="95%" style="border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
   <p><i>Sub-second latency random video pairing in action.</i></p>
 </div>
 
@@ -74,5 +74,5 @@
 
 1. **Clone & Install**
    ```bash
-   git clone [https://github.com/YourUsername/ProjectName.git](https://github.com/YourUsername/ProjectName.git)
+   git clone [https://github.com/YourUsername/ProjectName.git](https://github.com/NovexelStudio/ProjectName.git)
    npm install
