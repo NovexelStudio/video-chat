@@ -19,13 +19,13 @@ import {
 // Firebase Setup
 // ────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyCpX68nuBj2_ioYAehdYsaBxZsx7nwHeh0",
-  authDomain: "video-chat-e39bf.firebaseapp.com",
-  databaseURL: "https://video-chat-e39bf-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "video-chat-e39bf",
-  storageBucket: "video-chat-e39bf.firebasestorage.app",
-  messagingSenderId: "318016664014",
-  appId: "1:318016664014:web:c1322ac800ede20174fb9f",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
@@ -38,7 +38,7 @@ const iceServers = {
   ],
 };
 
-export default function Omegle2010Light() {
+export default function Orbit() {
   const [mode, setMode] = useState<"home" | "chat">("home");
   const [messages, setMessages] = useState<{ text: string; uid: string }[]>([]);
   const [input, setInput] = useState("");
@@ -215,10 +215,10 @@ export default function Omegle2010Light() {
   if (mode === "home") {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center text-center">
-        <h1 className="text-9xl font-black text-orange-600 mb-4">omegle</h1>
-        <p className="text-4xl text-gray-800 mb-8">talk to strangers!</p>
-        <p className="text-gray-500 mb-12">{onlineCount} online now</p>
-        <button onClick={findMatch} className="bg-orange-600 text-white px-20 py-8 text-4xl font-bold rounded-lg shadow-xl active:scale-95 transition-transform">Video</button>
+        <h1 className="text-9xl font-black text-gray-400 mb-4 hover:brightness-125 ">ORBIT</h1>
+        <p className="text-4xl text-gray-800 mb-8 text-shadow-fuchsia-50 drop-shadow-amber-500 font-normal from-neutral-900 f">talk to strangers!</p>
+        <p className="text-gray-500 mb-12 text-2xl hover:text-3xl hover:transform-flat">{onlineCount} online now</p>
+        <button onClick={findMatch} className="bg-gray-600 text-white px-20 py-8 text-4xl font-bold rounded-full shadow-xl active:scale-95 transition-transform hover:bg-gray-950 hover:size-10/20">Video</button>
       </div>
     );
   }
@@ -226,7 +226,7 @@ export default function Omegle2010Light() {
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <header className="p-4 bg-white border-b border-gray-300 flex justify-between items-center">
-        <h1 className="text-3xl font-black text-orange-600 lowercase">omegle</h1>
+        <h1 className="text-3xl font-black text-white-600 uppercase ">Orbit</h1>
         <div className="text-sm font-bold text-gray-600">{onlineCount} online</div>
       </header>
 
@@ -237,7 +237,7 @@ export default function Omegle2010Light() {
             <div className="absolute top-2 left-2 bg-white/80 px-2 py-0.5 rounded text-xs font-bold uppercase">Stranger</div>
             {status !== "Connected" && (
               <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mb-2" />
+                <div className="w-10 h-10 border-4 border-gray-600-600 border-t-transparent rounded-full animate-spin mb-2" />
                 <span className="font-bold text-gray-700">{status}</span>
               </div>
             )}
@@ -260,14 +260,14 @@ export default function Omegle2010Light() {
           </div>
           <div className="p-4 border-t border-gray-300 flex gap-2">
             <div className="flex flex-col gap-1">
-              <button onClick={endChat} className="bg-gray-100 border border-gray-400 px-3 py-1 text-[10px] font-bold uppercase hover:bg-red-50 text-red-600">Stop</button>
-              <button onClick={nextChat} className="bg-gray-100 border border-gray-400 px-3 py-1 text-[10px] font-bold uppercase hover:bg-orange-50 text-orange-600">Next</button>
+              <button onClick={endChat} className="bg-gray-100 border border-gray-400 px-3 py-1 text-[10px] font-bold uppercase hover:bg-red-50 text-gray-400-600">Stop</button>
+              <button onClick={nextChat} className="bg-gray-100 border border-gray-400 px-3 py-1 text-[10px] font-bold uppercase hover:bg-orange-50 text-gray-400">Next</button>
             </div>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-              className="flex-1 border border-gray-400 rounded p-2 text-sm focus:outline-none focus:border-orange-500 resize-none h-[60px]"
+              className="flex-1 border border-gray-400 rounded p-2 text-sm focus:outline-none focus:border-gray-400 resize-none h-[60px]"
               placeholder="Type message..."
             />
             <button onClick={sendMessage} className="bg-gray-100 border border-gray-400 px-4 font-bold uppercase text-xs">Send</button>
